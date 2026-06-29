@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>University Presentation - Online Shopping System</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800&family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root { --stage-w: 1280px; --stage-h: 720px; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; overflow-x: hidden; }
+html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+body { background: #0b1020; -webkit-font-smoothing: antialiased; }
+.slide { position: relative; width: 100vw; height: 100vh; height: 100dvh; overflow: hidden; scroll-snap-align: start; background: #0b1020; }
+.stage { position: absolute; top: 50%; left: 50%; width: var(--stage-w); height: var(--stage-h); transform: translate(-50%, -50%) scale(var(--scale, 1)); transform-origin: center center; overflow: hidden; background: var(--bg, #ffffff); color: var(--ink, #111111); font-family: var(--font-body, sans-serif); }
+.stage-pad { position: absolute; inset: 0; padding: 56px 72px; display: flex; flex-direction: column; }
+.slide-body { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; justify-content: center; gap: 20px; overflow: hidden; }
+.kicker { font-family: 'Space Grotesk', sans-serif; text-transform: uppercase; letter-spacing: 4px; font-size: 13px; color: var(--accent); }
+h1, h2, h3 { font-family: var(--font-title); }
+h1 { font-size: 62px; line-height: 1.02; letter-spacing: -1px; }
+h2 { font-size: 42px; line-height: 1.08; }
+h3 { font-size: 22px; line-height: 1.15; }
+.subtitle, .lede, .attrib, .bullet-list, p { font-family: var(--font-body); }
+.subtitle { font-size: 21px; line-height: 1.45; color: rgba(255,255,255,0.84); max-width: 920px; }
+.lede { font-size: 22px; line-height: 1.5; max-width: 980px; }
+.footer { margin-top: auto; display: flex; justify-content: space-between; align-items: center; font-family: 'Space Grotesk', sans-serif; font-size: 13px; letter-spacing: 2px; color: rgba(255,255,255,0.72); }
+.mark { color: var(--accent); }
+.pill { display: inline-flex; align-items: center; padding: 10px 16px; border-radius: 999px; background: rgba(255,255,255,0.10); color: white; font-family: 'Space Grotesk', sans-serif; font-size: 13px; letter-spacing: 1px; }
+.bullet-list { margin-left: 22px; font-size: 18px; line-height: 1.55; max-width: 1000px; }
+.bullet-list li { margin-bottom: 10px; }
+.mini-card { border-radius: 24px; background: rgba(255,255,255,0.11); border: 1px solid rgba(255,255,255,0.14); padding: 22px; backdrop-filter: blur(10px); }
+.mini-card h3 { margin-bottom: 10px; }
+.grid { display: grid; gap: 18px; }
+.reveal { opacity: 0; transform: translateY(26px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal-left { opacity: 0; transform: translateX(-36px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal-scale { opacity: 0; transform: scale(0.93); transition: opacity 0.7s ease, transform 0.7s ease; }
+.visible .reveal, .visible .reveal-left, .visible .reveal-scale { opacity: 1; transform: none; }
+.section-num { position: absolute; right: 60px; top: 32px; font-family: 'Archivo', sans-serif; font-size: 84px; color: rgba(255,255,255,0.10); }
+.progress { position: absolute; left: 0; top: 0; height: 8px; width: 100%; background: rgba(255,255,255,0.08); }
+.progress > div { height: 100%; width: 100%; background: linear-gradient(90deg, #42d392, #3b82f6, #f59e0b); }
+</style>
+<script>
+class SlidePresentation {
+  constructor() { this.slides = document.querySelectorAll('.slide'); this.currentSlide = 0; this.totalSlides = this.slides.length; this.touchStartY = 0; this.touchEndY = 0; this.setupIntersectionObserver(); this.setupKeyboardNav(); this.setupTouchNav(); this.setupWheelNav(); this.goToSlide(0); }
+  setupIntersectionObserver() { const observer = new IntersectionObserver(entries => { entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }); }, { threshold: 0.3 }); this.slides.forEach(slide => observer.observe(slide)); }
+  setupKeyboardNav() { document.addEventListener('keydown', e => { if (['ArrowDown','ArrowRight',' ','PageDown'].includes(e.key)) { e.preventDefault(); this.nextSlide(); } else if (['ArrowUp','ArrowLeft','PageUp'].includes(e.key)) { e.preventDefault(); this.prevSlide(); } else if (e.key === 'Home') { e.preventDefault(); this.goToSlide(0); } else if (e.key === 'End') { e.preventDefault(); this.goToSlide(this.totalSlides - 1); } }); }
+  setupTouchNav() { document.addEventListener('touchstart', e => { this.touchStartY = e.changedTouches[0].screenY; }, { passive: true }); document.addEventListener('touchend', e => { this.touchEndY = e.changedTouches[0].screenY; const diff = this.touchStartY - this.touchEndY; if (Math.abs(diff) > 50) diff > 0 ? this.nextSlide() : this.prevSlide(); }, { passive: true }); }
+  setupWheelNav() { let wheelTimeout; document.addEventListener('wheel', e => { e.preventDefault(); clearTimeout(wheelTimeout); wheelTimeout = setTimeout(() => { e.deltaY > 0 ? this.nextSlide() : this.prevSlide(); }, 50); }, { passive: false }); }
+  goToSlide(n) { this.currentSlide = Math.max(0, Math.min(n, this.totalSlides - 1)); this.slides[this.currentSlide].scrollIntoView({ behavior: 'smooth' }); this.slides[this.currentSlide].classList.add('visible'); }
+  nextSlide() { this.goToSlide(this.currentSlide + 1); } prevSlide() { this.goToSlide(this.currentSlide - 1); }
+}
+function fitStages() { var s = Math.min(window.innerWidth / 1280, window.innerHeight / 720); document.documentElement.style.setProperty('--scale', s); }
+window.addEventListener('resize', fitStages); fitStages(); window.addEventListener('load', () => new SlidePresentation());
+</script>
+</head>
+<body>
+<section class="slide"><div class="stage" style="--bg:#0f172a;--ink:#ffffff;--accent:#38bdf8;--font-title:'Archivo',sans-serif;--font-body:'Inter',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1d4ed8 55%,#06b6d4 140%);">
+<div class="progress"><div></div></div><div class="stage-pad"><div class="kicker reveal">University Project Presentation</div><div class="slide-body"><h1 class="reveal">Online Shopping System<br>Enhanced Edition</h1><p class="subtitle reveal">Java Swing based e-commerce desktop application with login, signup, product browsing, cart management, and checkout.</p><div class="pill reveal-scale">Presented in a clean academic style</div></div><div class="footer"><span class="mark">TITLE</span><span>01</span></div></div></div></section>
+<section class="slide"><div class="stage" style="--bg:#111827;--ink:#ffffff;--accent:#f59e0b;--font-title:'Archivo',sans-serif;--font-body:'Inter',sans-serif;background:linear-gradient(135deg,#111827 0%,#374151 60%,#f59e0b 130%);">
+<div class="stage-pad"><div class="kicker reveal">Introduction</div><div class="slide-body"><h2 class="reveal">Project introduction</h2><p class="lede reveal-left">This project is an online shopping system developed in Java using Swing. It is designed to simulate a real shopping platform where users can sign up, log in, browse products, add items to cart, and place an order.</p></div><div class="footer"><span class="mark">INTRODUCTION</span><span>02</span></div></div></div></section>
+<section class="slide"><div class="stage" style="--bg:#1e1b4b;--ink:#ffffff;--accent:#c084fc;--font-title:'Archivo',sans-serif;--font-body:'Inter',sans-serif;background:linear-gradient(135deg,#1e1b4b 0%,#4f46e5 55%,#a855f7 135%);">
+<div class="stage-pad"><div class="kicker reveal">Problem Statement</div><div class="slide-body"><h2 class="reveal">Why this project is needed</h2><ul class="bullet-list reveal-left"><li>To show how an e-commerce system works at a basic level.</li><li>To manage products, users, and cart items in an organized way.</li><li>To provide a simple but realistic shopping interface.</li><li>To practice object-oriented programming and GUI design.</li></ul></div><div class="footer"><span class="mark">MOTIVATION</span><span>03</span></div></div></div></section>
+<section class="slide"><div class="stage" style="--bg:#0f172a;--ink:#ffffff;--accent:#22c55e;--font-title:'Archivo',sans-serif;--font-body:'Inter',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#14532d 58%,#22c55e 135%);">
+<div class="stage-pad"><div class="kicker reveal">Objectives</div><div class="slide-body"><h2 class="reveal">Main objectives of the system</h2><div class="grid" style="grid-template-columns:repeat(2,1fr);"><div class="mini-card reveal-scale"><h3>User authentication</h3><p>Allow signup and login with customer details.</p></div><div class="mini-card reveal-scale"><h3>Product catalog</h3><p>Show a large list of products with categories.</p></div><div class="mini-card reveal-scale"><h3>Shopping cart</h3><p>Let users add, update, and remove products.</p></div><div class="mini-card reveal-scale"><h3>Checkout</h3><p>Generate a final order receipt after purchase.</p></div></div></div><div class="footer"><span class="mark">OBJECTIVES</span><span>04</span></div></div></div></section>
+<section class="slide"><div class="stage" style="--bg:#3b1d0f;--ink:#ffffff;--accent:#fb923c;--font-title:'Archivo',sans-serif;--font-body:'Inter',sans-serif;background:linear-gradient(135deg,#3b1d0f 0%,#9a3412 55%,#fb923c 135%);">
+<div class="stage-pad"><div class="kicker reveal">System Modules</div><div class="slide-body"><h2 class="reveal">Important components</h2><div class="grid" style="grid-template-columns:repeat(3,1fr);"><div class="mini-card reveal-scale"><h3>Main.java</h3><p>Application entry point and look-and-feel setup.</p></div><div class="mini-card reveal-scale"><h3>ShoppingSystem.java</h3><p>Business logic, user management, and checkout.</p></div><div class="mini-card reveal-scale"><h3>ShoppingSystemGUI.java</h3><p>Complete user interface and interaction layer.</p></div></div></div><div class="footer"><span class="mark">ARCHITECTURE</span><span>05</span></div></div></div></section>
+<section class="slide"><div class="stage" style="--bg:#1f2937;--ink:#ffffff;--accent:#facc15;--font-title:'Archivo',sans-serif;--font-body:'Inter',sans-serif;background:radial-gradient(circle at 20% 20%,#facc1555 0%,transparent 24%),radial-gradient(circle at 80% 35%,#38bdf855 0%,transparent 24%),linear-gradient(135deg,#1f2937 0%,#374151 60%,#111827 140%);">
+<div class="stage-pad"><div class="kicker reveal">Data Model</div><div class="slide-body"><h2 class="reveal">Core classes used in the project</h2><div class="grid" style="grid-template-columns:repeat(2,1fr);"><div class="mini-card reveal-scale"><h3>Product</h3><p>Contains price, stock, discount, description, and image URL.</p></div><div class="mini-card reveal-scale"><h3>User</h3><p>Stores name, email, password, phone, and address.</p></div><div class="mini-card reveal-scale"><h3>Cart</h3><p>Handles selected items and total amount.</p></div><div class="mini-card reveal-scale"><h3>Order</h3><p>Creates receipt and confirms the final purchase.</p></div></div></div><div class="footer"><span class="mark">DATA MODEL</span><span>06</span></div></div></div></section>
+<section class="slide"><div class="stage" style="--bg:#1d4ed8;--ink:#ffffff;--accent:#f8fafc;--font-title:'Archivo',sans-serif;--font-body:'Inter',sans-serif;background:linear-gradient(135deg,#1d4ed8 0%,#0ea5e9 55%,#22c55e 140%);">
+<div class="stage-pad"><div class="kicker reveal">Features</div><div class="slide-body"><h2 class="reveal">Main features of the application</h2><ul class="bullet-list reveal-left"><li>Login and signup page for registered customers.</li><li>Guest browsing option for quick access.</li><li>30 products across 6 categories.</li><li>Image cards with discount and stock display.</li><li>Search and category filter in the shopping area.</li><li>Cart, quantity update, and receipt generation.</li></ul></div><div class="footer"><span class="mark">FEATURE SET</span><span>07</span></div></div></div></section>
+<section class="slide"><div class="stage" style="--bg:#111827;--ink:#ffffff;--accent:#60a5fa;--font-title:'Archivo',sans-serif;--font-body:'Inter',sans-serif;background:linear-gradient(135deg,#111827 0%,#312e81 55%,#60a5fa 135%);">
+<div class="stage-pad"><div class="kicker reveal">Working Flow</div><div class="slide-body"><h2 class="reveal">How the system works</h2><div class="grid" style="grid-template-columns:repeat(4,1fr);"><div class="mini-card reveal-scale"><h3>Step 1</h3><p>User opens landing page.</p></div><div class="mini-card reveal-scale"><h3>Step 2</h3><p>Login, signup, or browse as guest.</p></div><div class="mini-card reveal-scale"><h3>Step 3</h3><p>Search products and add to cart.</p></div><div class="mini-card reveal-scale"><h3>Step 4</h3><p>Checkout and receive the order summary.</p></div></div></div><div class="footer"><span class="mark">FLOW</span><span>08</span></div></div></div></section>
+<section class="slide"><div class="stage" style="--bg:#3f1d2e;--ink:#ffffff;--accent:#fb7185;--font-title:'Archivo',sans-serif;--font-body:'Inter',sans-serif;background:radial-gradient(circle at 15% 20%,#fb718555 0%,transparent 24%),radial-gradient(circle at 85% 75%,#f59e0b55 0%,transparent 22%),linear-gradient(135deg,#3f1d2e 0%,#7f1d1d 60%,#fb7185 135%);">
+<div class="stage-pad"><div class="kicker reveal">Advantages</div><div class="slide-body"><h2 class="reveal">Strength of this project</h2><p class="lede reveal-left">The application is simple to understand, visually attractive, and demonstrates practical software engineering concepts such as modular coding, object-oriented design, event handling, and user interaction.</p></div><div class="footer"><span class="mark">STRENGTHS</span><span>09</span></div></div></div></section>
+<section class="slide"><div class="stage" style="--bg:#0f172a;--ink:#ffffff;--accent:#34d399;--font-title:'Archivo',sans-serif;--font-body:'Inter',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#064e3b 55%,#34d399 135%);">
+<div class="stage-pad"><div class="kicker reveal">Future Scope</div><div class="slide-body"><h2 class="reveal">Possible improvements</h2><div class="grid" style="grid-template-columns:repeat(2,1fr);"><div class="mini-card reveal-scale"><h3>Database integration</h3><p>Store users and orders permanently.</p></div><div class="mini-card reveal-scale"><h3>Online payment</h3><p>Add card or wallet payment methods.</p></div><div class="mini-card reveal-scale"><h3>Admin dashboard</h3><p>Manage products, stock, and reports.</p></div><div class="mini-card reveal-scale"><h3>Order tracking</h3><p>Show delivery progress to users.</p></div></div></div><div class="footer"><span class="mark">FUTURE WORK</span><span>10</span></div></div></div></section>
+<section class="slide"><div class="stage" style="--bg:#0b1020;--ink:#ffffff;--accent:#38bdf8;--font-title:'Archivo',sans-serif;--font-body:'Inter',sans-serif;background:linear-gradient(135deg,#0b1020 0%,#111827 55%,#38bdf8 135%);">
+<div class="stage-pad"><div class="kicker reveal">Conclusion</div><div class="slide-body"><h1 class="reveal">Thank You</h1><p class="subtitle reveal-left">This project is a complete university-level demonstration of an online shopping system built with Java Swing and object-oriented programming.</p><div class="pill reveal-scale">Question and answer session</div></div><div class="footer"><span class="mark">END</span><span>11</span></div></div></div></section>
+<script>function fitStages(){var s=Math.min(window.innerWidth/1280,window.innerHeight/720);document.documentElement.style.setProperty('--scale',s);}window.addEventListener('resize',fitStages);fitStages();window.addEventListener('load',()=>new SlidePresentation());</script>
+</body>
+</html>
